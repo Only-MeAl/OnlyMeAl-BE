@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.onlymeal.domain.user.dao.UserDao">
+
+    <insert id="insertUser">
+        INSERT INTO users (email, password, nickname, gender, birth_date, height, weight, activity_level, target_goal)
+        VALUES (#{email}, #{password}, #{nickname}, #{gender}, #{birthDate}, #{height}, #{weight}, #{activityLevel}, #{targetGoal})
+    </insert>
+
+    <select id="getUserByEmail" resultType="User">
+        SELECT *
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+</mapper>
