@@ -1,6 +1,8 @@
 package com.onlymeal.global.security.jwt;
 
+import com.onlymeal.global.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,12 +46,14 @@ public class JwtTokenProvider {
     }
 
 
-    public boolean validateToken(String token) {
+    public ErrorCode validateToken(String token) {
         try {
             getClaims(token);
-            return true;
+            return null;  // 유효하면 null
+        } catch (ExpiredJwtException e) {
+            return ErrorCode.TOKEN_EXPIRED;
         } catch (Exception e) {
-            return false;
+            return ErrorCode.TOKEN_INVALID;
         }
     }
 

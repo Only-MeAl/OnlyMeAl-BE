@@ -1,5 +1,6 @@
 package com.onlymeal.global.security.jwt;
 
+import com.onlymeal.global.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,13 +27,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Long userId = jwtTokenProvider.getUserId(token);
+        if (token != null) {
+            ErrorCode errorCode = jwtTokenProvider.validateToken(token);
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (errorCode == null) {
+                Long userId = jwtTokenProvider.getUserId(token);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                request.setAttribute("errorCode", errorCode);
+            }
         }
 
         filterChain.doFilter(request, response);
