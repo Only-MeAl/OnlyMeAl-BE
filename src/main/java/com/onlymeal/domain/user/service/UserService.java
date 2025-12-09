@@ -4,6 +4,7 @@ import com.onlymeal.domain.user.dao.UserDao;
 import com.onlymeal.domain.user.dto.LoginRequest;
 import com.onlymeal.domain.user.dto.LoginResponse;
 import com.onlymeal.domain.user.dto.SignupRequest;
+import com.onlymeal.domain.user.dto.UserResponse;
 import com.onlymeal.domain.user.entity.User;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
@@ -42,6 +43,15 @@ public class UserService {
 
         String token = jwtTokenProvider.createToken(user.getUserId());
         return new LoginResponse(token, user.getNickname());
+    }
 
+    public UserResponse getMyInfo(Long userId) {
+        User user = userDao.getUserById(userId);
+
+        if(user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return UserResponse.from(user);
     }
 }

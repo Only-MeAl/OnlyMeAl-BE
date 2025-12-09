@@ -15,4 +15,7 @@
         WHERE email = #{email}
     </select>
 
+    <select id="getUserById" resultType="User">
+        SELECT * FROM users WHERE user_id = #{userId}
+    </select>
 </mapper>
