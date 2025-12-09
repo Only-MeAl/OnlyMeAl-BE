@@ -1,5 +1,7 @@
 package com.onlymeal.domain.user.controller;
 
+import com.onlymeal.domain.user.dto.LoginRequest;
+import com.onlymeal.domain.user.dto.LoginResponse;
 import com.onlymeal.domain.user.dto.SignupRequest;
 import com.onlymeal.domain.user.service.UserService;
 import com.onlymeal.global.common.ApiResponse;
@@ -20,5 +22,11 @@ public class AuthController {
     public ApiResponse<Void> signup(@RequestBody SignupRequest request) {
         userService.signup(request);
         return ApiResponse.success(null);
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return ApiResponse.success(response);
     }
 }
