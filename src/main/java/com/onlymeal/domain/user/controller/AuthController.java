@@ -30,4 +30,9 @@ public class AuthController {
         LoginResponse response = userService.login(request);
         return ApiResponse.success(response);
     }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout() {
+        return ApiResponse.success(null);
+    }
 }
