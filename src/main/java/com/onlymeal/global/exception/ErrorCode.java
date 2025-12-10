@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     // Food
     FOOD_NOT_FOUND(HttpStatus.NOT_FOUND, "음식 정보를 찾을 수 없습니다"),
+    KEYWORD_REQUIRED(HttpStatus.BAD_REQUEST, "검색어는 필수입니다"),
 
     // Common
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),
