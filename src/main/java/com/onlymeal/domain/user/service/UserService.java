@@ -1,10 +1,7 @@
 package com.onlymeal.domain.user.service;
 
 import com.onlymeal.domain.user.dao.UserDao;
-import com.onlymeal.domain.user.dto.LoginRequest;
-import com.onlymeal.domain.user.dto.LoginResponse;
-import com.onlymeal.domain.user.dto.SignupRequest;
-import com.onlymeal.domain.user.dto.UserResponse;
+import com.onlymeal.domain.user.dto.*;
 import com.onlymeal.domain.user.entity.User;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
@@ -53,5 +50,18 @@ public class UserService {
         }
 
         return UserResponse.from(user);
+    }
+
+    public UserResponse updateMyInfo(Long userId, UserUpdateRequest request) {
+        User user = userDao.getUserById(userId);
+
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        userDao.updateUser(userId, request);
+
+        User updatedUser = userDao.getUserById(userId);
+        return UserResponse.from(updatedUser);
     }
 }
