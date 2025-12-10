@@ -1,5 +1,7 @@
 package com.onlymeal.domain.user.controller;
 
+import com.onlymeal.domain.user.dto.CoachResponse;
+import com.onlymeal.domain.user.dto.CoachUpdateRequest;
 import com.onlymeal.domain.user.dto.UserResponse;
 import com.onlymeal.domain.user.dto.UserUpdateRequest;
 import com.onlymeal.domain.user.service.UserService;
@@ -26,6 +28,19 @@ public class UserController {
     public ApiResponse<UserResponse> updateMyInfo(@AuthenticationPrincipal Long userId,
                                                   @Valid @RequestBody UserUpdateRequest request) {
         UserResponse response = userService.updateMyInfo(userId, request);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/me/coach")
+    public ApiResponse<CoachResponse> getCoach(@AuthenticationPrincipal Long userId) {
+        CoachResponse response = userService.getCoach(userId);
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping("/me/coach")
+    public ApiResponse<CoachResponse> updateCoach(@AuthenticationPrincipal Long userId,
+                                                  @Valid @RequestBody CoachUpdateRequest request) {
+        CoachResponse response = userService.updateCoach(userId, request);
         return ApiResponse.success(response);
     }
 }

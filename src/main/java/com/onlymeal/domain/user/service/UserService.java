@@ -64,4 +64,23 @@ public class UserService {
         User updatedUser = userDao.getUserById(userId);
         return UserResponse.from(updatedUser);
     }
+
+    public CoachResponse getCoach(Long userId) {
+        User user = userDao.getUserById(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+        return CoachResponse.from(user);
+    }
+
+    public CoachResponse updateCoach(Long userId, CoachUpdateRequest request) {
+        User user = userDao.getUserById(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        userDao.updateCoach(userId, request.getCoachTone(), request.getCoachPersonality());
+
+        return CoachResponse.from(userDao.getUserById(userId));
+    }
 }
