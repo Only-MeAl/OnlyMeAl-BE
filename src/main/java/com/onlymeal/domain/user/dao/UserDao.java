@@ -11,4 +11,5 @@ public interface UserDao {
     User getUserByEmail(String email);
     User getUserById(Long userId);
     void updateUser(Long userId, UserUpdateRequest request);
+    void updateCoach(Long userId, String coachTone, String coachPersonality);
 }

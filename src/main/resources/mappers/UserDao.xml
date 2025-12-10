@@ -30,4 +30,11 @@
         </set>
         WHERE user_id = #{userId}
     </update>
+
+    <update id="updateCoach">
+        UPDATE users
+        SET coach_tone = #{coachTone},
+            coach_personality = #{coachPersonality}
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
