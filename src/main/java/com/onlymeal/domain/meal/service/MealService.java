@@ -107,6 +107,23 @@ public class MealService {
         }
     }
 
+    @Transactional
+    public void deleteMeal(Long logId, Long userId) {
+        MealLog mealLog = mealDao.getMealLogById(logId);
+
+        if (mealLog == null) {
+            throw new CustomException(ErrorCode.MEAL_NOT_FOUND);
+        }
+
+        if (!mealLog.getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        fileStorage.delete(mealLog.getImageUrl());
+
+        mealDao.deleteMealLog(logId);
+    }
+
     private void validateFoodIds(List<MealItemRequest> items) {
         for (MealItemRequest item : items) {
             if (foodDao.getFoodById(item.getFoodId()) == null) {

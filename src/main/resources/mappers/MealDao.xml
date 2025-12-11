@@ -52,4 +52,9 @@
         FROM meal_items
         WHERE log_id = #{logId}
     </delete>
+
+    <delete id="deleteMealLog">
+        DELETE FROM meal_logs
+        WHERE log_id = #{logId}
+    </delete>
 </mapper>

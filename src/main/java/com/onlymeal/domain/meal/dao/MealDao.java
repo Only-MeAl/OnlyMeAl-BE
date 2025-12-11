@@ -26,4 +26,6 @@ public interface MealDao {
     void updateMealImage(@Param("logId") Long logId, @Param("imageUrl") String imageUrl);
 
     void deleteMealItems(@Param("logId") Long logId);
+
+    void deleteMealLog(@Param("logId") Long logId);
 }
