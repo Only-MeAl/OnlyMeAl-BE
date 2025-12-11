@@ -11,4 +11,9 @@
             LIMIT #{limit}
     </select>
 
+    <select id="getFoodById" resultType="Food">
+        SELECT *
+        FROM foods
+        WHERE food_id = #{foodId}
+    </select>
 </mapper>

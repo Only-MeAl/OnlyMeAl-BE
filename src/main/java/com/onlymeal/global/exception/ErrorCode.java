@@ -20,6 +20,7 @@ public enum ErrorCode {
 
     // Meal
     MEAL_NOT_FOUND(HttpStatus.NOT_FOUND, "식단 기록을 찾을 수 없습니다"),
+    DUPLICATE_MEAL(HttpStatus.CONFLICT, "해당 날짜에 이미 등록된 식사가 있습니다"),
 
     // Feed
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "피드를 찾을 수 없습니다"),
@@ -30,6 +31,11 @@ public enum ErrorCode {
 
     // RDI
     RDI_NOT_FOUND(HttpStatus.NOT_FOUND, "권장 섭취량 기준을 찾을 수 없습니다"),
+
+    // File
+    FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 비어있습니다"),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다"),
 
     // Common
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),
