@@ -52,4 +52,13 @@ public class MealController {
 
         return ApiResponse.success(null);
     }
+
+    @DeleteMapping("/{logId}")
+    public ApiResponse<Void> deleteMeal(
+            @PathVariable Long logId,
+            @AuthenticationPrincipal Long userId) {
+
+        mealService.deleteMeal(logId, userId);
+        return ApiResponse.success(null);
+    }
 }
