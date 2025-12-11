@@ -20,4 +20,10 @@ public interface MealDao {
     MealLog getMealLogById(@Param("logId") Long logId);
 
     List<MealItem> getMealItemsByLogId(@Param("logId") Long logId);
+
+    void updateMealType(@Param("logId") Long logId, @Param("mealType") String mealType);
+
+    void updateMealImage(@Param("logId") Long logId, @Param("imageUrl") String imageUrl);
+
+    void deleteMealItems(@Param("logId") Long logId);
 }

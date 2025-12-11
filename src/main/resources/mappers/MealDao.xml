@@ -22,7 +22,9 @@
     </select>
 
     <select id="getMealLogById" resultType="MealLog">
-        SELECT * FROM meal_logs WHERE log_id = #{logId}
+        SELECT *
+        FROM meal_logs
+        WHERE log_id = #{logId}
     </select>
 
     <select id="existsMealLog" resultType="boolean">
@@ -32,4 +34,22 @@
           AND meal_date = #{mealDate}
           AND meal_type = #{mealType}
     </select>
+
+    <update id="updateMealType">
+        UPDATE meal_logs
+        SET meal_type = #{mealType}
+        WHERE log_id = #{logId}
+    </update>
+
+    <update id="updateMealImage">
+        UPDATE meal_logs
+        SET image_url = #{imageUrl}
+        WHERE log_id = #{logId}
+    </update>
+
+    <delete id="deleteMealItems">
+        DELETE
+        FROM meal_items
+        WHERE log_id = #{logId}
+    </delete>
 </mapper>
