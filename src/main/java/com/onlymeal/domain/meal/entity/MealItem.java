@@ -15,6 +15,7 @@ public class MealItem {
     private Long itemId;
     private Long logId;
     private Long foodId;
+    private String foodName;
     private String inputType;
     private Double inputAmount;
 

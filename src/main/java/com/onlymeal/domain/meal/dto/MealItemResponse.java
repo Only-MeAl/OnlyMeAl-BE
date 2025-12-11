@@ -9,15 +9,18 @@ import lombok.Getter;
 public class MealItemResponse {
     private Long itemId;
     private Long foodId;
+    private String foodName;
+
     private String inputType;
     private Double inputAmount;
 
-    public static MealItemResponse from(MealItem item) {
+    public static MealItemResponse from(MealItem mealItem) {
         return MealItemResponse.builder()
-                .itemId(item.getItemId())
-                .foodId(item.getFoodId())
-                .inputType(item.getInputType())
-                .inputAmount(item.getInputAmount())
+                .itemId(mealItem.getItemId())
+                .foodId(mealItem.getFoodId())
+                .foodName(mealItem.getFoodName())
+                .inputType(mealItem.getInputType())
+                .inputAmount(mealItem.getInputAmount())
                 .build();
     }
 }
