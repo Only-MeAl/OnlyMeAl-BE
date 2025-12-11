@@ -14,14 +14,15 @@
         VALUES (#{logId}, #{foodId}, #{inputType}, #{inputAmount})
     </insert>
 
-    <select id="getMealLogById" resultType="MealLog">
-        SELECT log_id, user_id, meal_type, meal_date, image_url
-        FROM meal_logs
-        WHERE log_id = #{logId}
+    <select id="getMealItemsByLogId" resultType="MealItem">
+        SELECT mi.*, f.food_name AS foodName
+        FROM meal_items mi
+                 JOIN foods f ON mi.food_id = f.food_id
+        WHERE mi.log_id = #{logId}
     </select>
 
-    <select id="getMealItemsByLogId" resultType="MealItem">
-        SELECT * FROM meal_items WHERE log_id = #{logId}
+    <select id="getMealLogById" resultType="MealLog">
+        SELECT * FROM meal_logs WHERE log_id = #{logId}
     </select>
 
     <select id="existsMealLog" resultType="boolean">

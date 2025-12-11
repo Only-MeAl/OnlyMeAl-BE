@@ -1,6 +1,7 @@
 package com.onlymeal.domain.meal.controller;
 
 import com.onlymeal.domain.meal.dto.MealCreateRequest;
+import com.onlymeal.domain.meal.dto.MealDetailResponse;
 import com.onlymeal.domain.meal.service.MealService;
 import com.onlymeal.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,5 +25,12 @@ public class MealController {
 
         mealService.createMeal(userId, request, image);
         return ApiResponse.success(null);
+    }
+
+    @GetMapping("/{logId}")
+    public ApiResponse<MealDetailResponse> getMealDetail(
+            @PathVariable Long logId,
+            @AuthenticationPrincipal Long userId) {
+        return ApiResponse.success(mealService.getMealDetail(logId, userId));
     }
 }

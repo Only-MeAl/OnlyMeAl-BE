@@ -3,6 +3,7 @@ package com.onlymeal.domain.meal.service;
 import com.onlymeal.domain.food.dao.FoodDao;
 import com.onlymeal.domain.meal.dao.MealDao;
 import com.onlymeal.domain.meal.dto.MealCreateRequest;
+import com.onlymeal.domain.meal.dto.MealDetailResponse;
 import com.onlymeal.domain.meal.dto.MealItemRequest;
 import com.onlymeal.domain.meal.entity.MealItem;
 import com.onlymeal.domain.meal.entity.MealLog;
@@ -42,6 +43,22 @@ public class MealService {
         for (MealItem item : mealItems) {
             mealDao.insertMealItem(item);
         }
+    }
+
+    public MealDetailResponse getMealDetail(Long logId, Long userId) {
+        MealLog mealLog = mealDao.getMealLogById(logId);
+
+        if (mealLog == null) {
+            throw new CustomException(ErrorCode.MEAL_NOT_FOUND);
+        }
+
+        if (!mealLog.getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        List<MealItem> mealItems = mealDao.getMealItemsByLogId(logId);
+
+        return MealDetailResponse.of(mealLog, mealItems);
     }
 
     private void validateFoodIds(List<MealItemRequest> items) {
