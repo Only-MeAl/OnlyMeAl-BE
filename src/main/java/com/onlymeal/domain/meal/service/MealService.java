@@ -64,46 +64,14 @@ public class MealService {
 
     @Transactional
     public void updateMeal(Long logId, Long userId, MealUpdateRequest request, MultipartFile image) {
-        MealLog mealLog = mealDao.getMealLogById(logId);
-
-        if (mealLog == null) {
-            throw new CustomException(ErrorCode.MEAL_NOT_FOUND);
-        }
-
-        if (!mealLog.getUserId().equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
+        MealLog mealLog = validateAndGetMealLog(logId, userId);
 
         if (image != null && !image.isEmpty()) {
-            fileStorage.delete(mealLog.getImageUrl());
-
-            String currentMealType = (request != null && request.getMealType() != null)
-                    ? request.getMealType()
-                    : mealLog.getMealType();
-
-            String newImageUrl = fileStorage.store(image, userId, currentMealType);
-            mealDao.updateMealImage(logId, newImageUrl);
+            updateImage(mealLog, request, image);
         }
 
-        if (request == null) {
-            return;
-        }
-
-        if (request.getMealType() != null && !request.getMealType().equals(mealLog.getMealType())) {
-            if (mealDao.existsMealLog(userId, mealLog.getMealDate(), request.getMealType())) {
-                throw new CustomException(ErrorCode.DUPLICATE_MEAL);
-            }
-            mealDao.updateMealType(logId, request.getMealType());
-        }
-
-        if (request.getItems() != null) {
-            validateFoodIds(request.getItems());
-            mealDao.deleteMealItems(logId);
-
-            List<MealItem> mealItems = MealItem.createList(logId, request.getItems());
-            for (MealItem item : mealItems) {
-                mealDao.insertMealItem(item);
-            }
+        if (request != null) {
+            updateMealData(mealLog, request);
         }
     }
 
@@ -128,6 +96,48 @@ public class MealService {
         for (MealItemRequest item : items) {
             if (foodDao.getFoodById(item.getFoodId()) == null) {
                 throw new CustomException(ErrorCode.FOOD_NOT_FOUND);
+            }
+        }
+    }
+
+    private MealLog validateAndGetMealLog(Long logId, Long userId) {
+        MealLog mealLog = mealDao.getMealLogById(logId);
+        if (mealLog == null) {
+            throw new CustomException(ErrorCode.MEAL_NOT_FOUND);
+        }
+        if (!mealLog.getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+        return mealLog;
+    }
+
+    private void updateImage(MealLog mealLog, MealUpdateRequest request, MultipartFile image) {
+        fileStorage.delete(mealLog.getImageUrl());
+
+        String currentMealType = (request != null && request.getMealType() != null)
+                ? request.getMealType()
+                : mealLog.getMealType();
+
+        String newImageUrl = fileStorage.store(image, mealLog.getUserId(), currentMealType);
+        mealDao.updateMealImage(mealLog.getLogId(), newImageUrl);
+    }
+
+    private void updateMealData(MealLog mealLog, MealUpdateRequest request) {
+        if (request.getMealType() != null && !request.getMealType().equals(mealLog.getMealType())) {
+            if (mealDao.existsMealLog(mealLog.getUserId(), mealLog.getMealDate(), request.getMealType())) {
+                throw new CustomException(ErrorCode.DUPLICATE_MEAL);
+            }
+            mealDao.updateMealType(mealLog.getLogId(), request.getMealType());
+        }
+
+        if (request.getItems() != null) {
+            validateFoodIds(request.getItems());
+
+            mealDao.deleteMealItems(mealLog.getLogId());
+
+            List<MealItem> mealItems = MealItem.createList(mealLog.getLogId(), request.getItems());
+            for (MealItem item : mealItems) {
+                mealDao.insertMealItem(item);
             }
         }
     }
