@@ -2,12 +2,11 @@ package com.onlymeal.domain.meal.service;
 
 import com.onlymeal.domain.food.dao.FoodDao;
 import com.onlymeal.domain.meal.dao.MealDao;
-import com.onlymeal.domain.meal.dto.MealCreateRequest;
-import com.onlymeal.domain.meal.dto.MealDetailResponse;
-import com.onlymeal.domain.meal.dto.MealItemRequest;
-import com.onlymeal.domain.meal.dto.MealUpdateRequest;
+import com.onlymeal.domain.meal.dto.*;
 import com.onlymeal.domain.meal.entity.MealItem;
 import com.onlymeal.domain.meal.entity.MealLog;
+import com.onlymeal.domain.rdi.dto.RdiResponse;
+import com.onlymeal.domain.rdi.service.RdiService;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
 import com.onlymeal.global.storage.FileStorage;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +25,7 @@ public class MealService {
     private final MealDao mealDao;
     private final FoodDao foodDao;
     private final FileStorage fileStorage;
+    private final RdiService rdiService;
 
     @Transactional
     public void createMeal(Long userId, MealCreateRequest request, MultipartFile image) {
@@ -90,6 +91,30 @@ public class MealService {
         fileStorage.delete(mealLog.getImageUrl());
 
         mealDao.deleteMealLog(logId);
+    }
+
+    public MealDashboardResponse getDashboard(Long userId, String date) {
+        List<MealLog> mealLogs = mealDao.getMealLogsByDate(userId, date);
+        List<MealDetailResponse> meals = new ArrayList<>();
+
+        NutrientAccumulator accumulator = new NutrientAccumulator();
+
+        for (MealLog log : mealLogs) {
+            List<MealItem> items = log.getMealItems();
+            if (items == null) items = new ArrayList<>();
+
+            meals.add(MealDetailResponse.of(log, items));
+
+            for (MealItem item : items) {
+                accumulator.add(item);
+            }
+        }
+
+        RdiResponse rdi = rdiService.getRdi(userId);
+
+        DailySummary dailySummary = accumulator.toDailySummary(rdi);
+
+        return new MealDashboardResponse(meals, dailySummary);
     }
 
     private void validateFoodIds(List<MealItemRequest> items) {

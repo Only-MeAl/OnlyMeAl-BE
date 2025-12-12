@@ -28,4 +28,6 @@ public interface MealDao {
     void deleteMealItems(@Param("logId") Long logId);
 
     void deleteMealLog(@Param("logId") Long logId);
+
+    List<MealLog> getMealLogsByDate(@Param("userId") Long userId, @Param("date") String date);
 }
