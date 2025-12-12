@@ -1,5 +1,6 @@
 package com.onlymeal.domain.meal.entity;
 
+import com.onlymeal.domain.food.entity.Food;
 import com.onlymeal.domain.meal.dto.MealItemRequest;
 import lombok.*;
 
@@ -19,6 +20,8 @@ public class MealItem {
     private String inputType;
     private Double inputAmount;
 
+    private Food food;
+
     public static List<MealItem> createList(Long logId, List<MealItemRequest> requests) {
         return requests.stream()
                 .map(req -> MealItem.builder()
@@ -28,5 +31,15 @@ public class MealItem {
                         .inputAmount(req.getInputAmount())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public double calculateMultiplier() {
+        if (this.food == null) return 0.0;
+
+        if ("GRAM".equals(this.inputType)) {
+            return this.inputAmount / 100.0;
+        } else {
+            return (this.inputAmount * this.food.getServingUnitG()) / 100.0;
+        }
     }
 }

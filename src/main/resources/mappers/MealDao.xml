@@ -4,6 +4,37 @@
 
 <mapper namespace="com.onlymeal.domain.meal.dao.MealDao">
 
+    <resultMap id="MealItemMap" type="MealItem">
+        <id property="itemId" column="item_id"/>
+        <result property="logId" column="log_id"/>
+        <result property="foodId" column="food_id"/>
+        <result property="foodName" column="food_name"/>
+        <result property="inputType" column="input_type"/>
+        <result property="inputAmount" column="input_amount"/>
+
+        <association property="food" javaType="com.onlymeal.domain.food.entity.Food">
+            <id property="foodId" column="food_id"/>
+            <result property="foodName" column="food_name"/>
+            <result property="servingUnitG" column="serving_unit_g"/>
+            <result property="caloriesKcal" column="calories_kcal"/>
+            <result property="carbsG" column="carbs_g"/>
+            <result property="proteinG" column="protein_g"/>
+            <result property="fatG" column="fat_g"/>
+            <result property="sugarsG" column="sugars_g"/>
+            <result property="sodiumMg" column="sodium_mg"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="MealLogWithItemsMap" type="MealLog">
+        <id property="logId" column="log_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="mealType" column="meal_type"/>
+        <result property="mealDate" column="meal_date"/>
+        <result property="imageUrl" column="image_url"/>
+
+        <collection property="mealItems" ofType="MealItem" resultMap="MealItemMap"/>
+    </resultMap>
+
     <insert id="insertMealLog" useGeneratedKeys="true" keyProperty="logId">
         INSERT INTO meal_logs (user_id, meal_type, meal_date, image_url)
         VALUES (#{userId}, #{mealType}, #{mealDate}, #{imageUrl})
@@ -14,8 +45,16 @@
         VALUES (#{logId}, #{foodId}, #{inputType}, #{inputAmount})
     </insert>
 
-    <select id="getMealItemsByLogId" resultType="MealItem">
-        SELECT mi.*, f.food_name AS foodName
+    <select id="getMealItemsByLogId" resultMap="MealItemMap">
+        SELECT mi.*,
+               f.food_name,
+               f.serving_unit_g,
+               f.calories_kcal,
+               f.carbs_g,
+               f.protein_g,
+               f.fat_g,
+               f.sugars_g,
+               f.sodium_mg
         FROM meal_items mi
                  JOIN foods f ON mi.food_id = f.food_id
         WHERE mi.log_id = #{logId}
@@ -57,4 +96,18 @@
         DELETE FROM meal_logs
         WHERE log_id = #{logId}
     </delete>
+
+    <select id="getMealLogsByDate" resultMap="MealLogWithItemsMap">
+        SELECT
+            ml.log_id, ml.user_id, ml.meal_type, ml.meal_date, ml.image_url,
+            mi.item_id, mi.log_id, mi.food_id, mi.input_type, mi.input_amount,
+            f.food_id, f.food_name, f.serving_unit_g, f.calories_kcal,
+            f.carbs_g, f.protein_g, f.fat_g, f.sugars_g, f.sodium_mg
+        FROM meal_logs ml
+                 LEFT JOIN meal_items mi ON ml.log_id = mi.log_id
+                 LEFT JOIN foods f ON mi.food_id = f.food_id
+        WHERE ml.user_id = #{userId}
+          AND ml.meal_date = #{date}
+        ORDER BY ml.created_at, mi.item_id
+    </select>
 </mapper>

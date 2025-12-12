@@ -3,6 +3,8 @@ package com.onlymeal.domain.meal.entity;
 import com.onlymeal.domain.meal.dto.MealCreateRequest;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,6 +16,8 @@ public class MealLog {
     private String mealType;
     private String mealDate;
     private String imageUrl;
+
+    private List<MealItem> mealItems;
 
     public static MealLog create(Long userId, MealCreateRequest request, String imageUrl) {
         return MealLog.builder()

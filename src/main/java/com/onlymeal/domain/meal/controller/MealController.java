@@ -1,6 +1,7 @@
 package com.onlymeal.domain.meal.controller;
 
 import com.onlymeal.domain.meal.dto.MealCreateRequest;
+import com.onlymeal.domain.meal.dto.MealDashboardResponse;
 import com.onlymeal.domain.meal.dto.MealDetailResponse;
 import com.onlymeal.domain.meal.dto.MealUpdateRequest;
 import com.onlymeal.domain.meal.service.MealService;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/meals")
@@ -60,5 +63,14 @@ public class MealController {
 
         mealService.deleteMeal(logId, userId);
         return ApiResponse.success(null);
+    }
+
+    @GetMapping
+    public ApiResponse<MealDashboardResponse> getDashboard(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam LocalDate date) {
+
+        MealDashboardResponse response = mealService.getDashboard(userId, date.toString());
+        return ApiResponse.success(response);
     }
 }
