@@ -1,5 +1,6 @@
 package com.onlymeal.domain.meal.dao;
 
+import com.onlymeal.domain.meal.dto.DailyMealStatus;
 import com.onlymeal.domain.meal.entity.MealItem;
 import com.onlymeal.domain.meal.entity.MealLog;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,4 +31,8 @@ public interface MealDao {
     void deleteMealLog(@Param("logId") Long logId);
 
     List<MealLog> getMealLogsByDate(@Param("userId") Long userId, @Param("date") String date);
+
+    List<DailyMealStatus> getDailyMealStatus(@Param("userId") Long userId,
+                                             @Param("startDate") String startDate,
+                                             @Param("endDate") String endDate);
 }
