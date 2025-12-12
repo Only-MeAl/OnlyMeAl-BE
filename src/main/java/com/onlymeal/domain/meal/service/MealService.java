@@ -117,6 +117,10 @@ public class MealService {
         return new MealDashboardResponse(meals, dailySummary);
     }
 
+    public List<DailyMealStatus> getDailyMealStatus(Long userId, String startDate, String endDate) {
+        return mealDao.getDailyMealStatus(userId, startDate, endDate);
+    }
+
     private void validateFoodIds(List<MealItemRequest> items) {
         for (MealItemRequest item : items) {
             if (foodDao.getFoodById(item.getFoodId()) == null) {

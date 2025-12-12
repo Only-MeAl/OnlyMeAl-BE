@@ -1,9 +1,6 @@
 package com.onlymeal.domain.meal.controller;
 
-import com.onlymeal.domain.meal.dto.MealCreateRequest;
-import com.onlymeal.domain.meal.dto.MealDashboardResponse;
-import com.onlymeal.domain.meal.dto.MealDetailResponse;
-import com.onlymeal.domain.meal.dto.MealUpdateRequest;
+import com.onlymeal.domain.meal.dto.*;
 import com.onlymeal.domain.meal.service.MealService;
 import com.onlymeal.global.common.ApiResponse;
 import com.onlymeal.global.exception.CustomException;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/meals")
@@ -71,6 +69,18 @@ public class MealController {
             @RequestParam LocalDate date) {
 
         MealDashboardResponse response = mealService.getDashboard(userId, date.toString());
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/calendar")
+    public ApiResponse<List<DailyMealStatus>> getMonthlyMealStatus(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+
+        List<DailyMealStatus> response = mealService.getDailyMealStatus(
+                userId, startDate.toString(), endDate.toString());
+
         return ApiResponse.success(response);
     }
 }

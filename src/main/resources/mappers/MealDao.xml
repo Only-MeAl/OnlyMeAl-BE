@@ -110,4 +110,18 @@
           AND ml.meal_date = #{date}
         ORDER BY ml.created_at, mi.item_id
     </select>
+
+    <select id="getDailyMealStatus" resultType="com.onlymeal.domain.meal.dto.DailyMealStatus">
+        SELECT
+            meal_date AS date,
+            MAX(IF(meal_type = 'BREAKFAST', 1, 0)) AS hasBreakfast,
+            MAX(IF(meal_type = 'LUNCH',     1, 0)) AS hasLunch,
+            MAX(IF(meal_type = 'DINNER',    1, 0)) AS hasDinner,
+            MAX(IF(meal_type = 'SNACK',     1, 0)) AS hasSnack
+        FROM meal_logs
+        WHERE user_id = #{userId}
+          AND meal_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY meal_date
+        ORDER BY meal_date
+    </select>
 </mapper>
