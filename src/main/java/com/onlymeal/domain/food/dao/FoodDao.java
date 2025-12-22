@@ -10,4 +10,6 @@ import java.util.List;
 public interface FoodDao {
     List<Food> searchFoods(@Param("keyword") String keyword, @Param("limit") int limit);
     Food getFoodById(@Param("foodId") Long foodId);
+
+    List<Food> getAllFoods();
 }

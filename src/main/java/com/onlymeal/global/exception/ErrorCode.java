@@ -37,6 +37,10 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다"),
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다"),
 
+    // AI
+    PROMPT_LOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "시스템 프롬프트를 읽을 수 없습니다"),
+    IMAGE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 처리에 실패했습니다"),
+
     // Common
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다");

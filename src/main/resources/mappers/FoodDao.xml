@@ -7,7 +7,15 @@
     <select id="searchFoods" resultType="Food">
         SELECT *
         FROM foods
-        WHERE MATCH(food_name) AGAINST(CONCAT(#{keyword}, '*') IN BOOLEAN MODE)
+        WHERE food_name LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY
+            CASE WHEN food_name = #{keyword} THEN 0 ELSE 1 END,
+
+            CASE WHEN food_name LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
+
+            LENGTH(food_name) ASC,
+
+            food_name ASC
             LIMIT #{limit}
     </select>
 
@@ -15,5 +23,10 @@
         SELECT *
         FROM foods
         WHERE food_id = #{foodId}
+    </select>
+
+    <select id="getAllFoods" resultType="com.onlymeal.domain.food.entity.Food">
+        SELECT food_id, food_name, calories_kcal, carbs_g, protein_g, fat_g
+        FROM foods
     </select>
 </mapper>
