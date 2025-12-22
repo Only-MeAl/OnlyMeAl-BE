@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.onlymeal.domain.meal.dao.DailyAnalysisDao">
+
+    <select id="findByUserIdAndDate" resultType="com.onlymeal.domain.meal.entity.DailyAnalysis">
+        SELECT analysis_id, user_id, analysis_date,
+               total_calories, total_carbs, total_protein, total_fat, total_sugars, total_sodium,
+               total_score, score_calories, score_carbs, score_protein, score_fat, score_sugars, score_sodium,
+               created_at, updated_at
+        FROM daily_analysis
+        WHERE user_id = #{userId}
+          AND analysis_date = #{analysisDate}
+    </select>
+
+    <insert id="upsertDailyAnalysis">
+        INSERT INTO daily_analysis (
+            user_id, analysis_date,
+            total_calories, total_carbs, total_protein, total_fat, total_sugars, total_sodium,
+            total_score, score_calories, score_carbs, score_protein, score_fat, score_sugars, score_sodium
+        ) VALUES (
+                     #{userId}, #{analysisDate},
+                     #{totalCalories}, #{totalCarbs}, #{totalProtein}, #{totalFat}, #{totalSugars}, #{totalSodium},
+                     #{totalScore}, #{scoreCalories}, #{scoreCarbs}, #{scoreProtein}, #{scoreFat}, #{scoreSugars}, #{scoreSodium}
+                 )
+        ON DUPLICATE KEY UPDATE
+                             total_calories = VALUES(total_calories),
+                             total_carbs = VALUES(total_carbs),
+                             total_protein = VALUES(total_protein),
+                             total_fat = VALUES(total_fat),
+                             total_sugars = VALUES(total_sugars),
+                             total_sodium = VALUES(total_sodium),
+                             total_score = VALUES(total_score),
+                             score_calories = VALUES(score_calories),
+                             score_carbs = VALUES(score_carbs),
+                             score_protein = VALUES(score_protein),
+                             score_fat = VALUES(score_fat),
+                             score_sugars = VALUES(score_sugars),
+                             score_sodium = VALUES(score_sodium),
+                             updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+</mapper>

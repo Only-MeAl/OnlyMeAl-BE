@@ -1,8 +1,10 @@
 package com.onlymeal.domain.meal.service;
 
 import com.onlymeal.domain.food.dao.FoodDao;
+import com.onlymeal.domain.meal.dao.DailyAnalysisDao;
 import com.onlymeal.domain.meal.dao.MealDao;
 import com.onlymeal.domain.meal.dto.*;
+import com.onlymeal.domain.meal.entity.DailyAnalysis;
 import com.onlymeal.domain.meal.entity.MealItem;
 import com.onlymeal.domain.meal.entity.MealLog;
 import com.onlymeal.domain.rdi.dto.RdiResponse;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class MealService {
     private final FoodDao foodDao;
     private final FileStorage fileStorage;
     private final RdiService rdiService;
+    private final DailyAnalysisDao dailyAnalysisDao;
 
     @Transactional
     public void createMeal(Long userId, MealCreateRequest request, MultipartFile image) {
@@ -169,5 +173,32 @@ public class MealService {
                 mealDao.insertMealItem(item);
             }
         }
+    }
+
+    public DailyAnalysis getDailyAnalysis(Long userId, String date) {
+        return dailyAnalysisDao.findByUserIdAndDate(userId, date);
+    }
+
+    @Transactional
+    public DailyAnalysisResponse analyzeDailyMeal(Long userId, String date) {
+        List<MealLog> mealLogs = mealDao.getMealLogsByDate(userId, date);
+
+        if (mealLogs.isEmpty()) {
+            throw new CustomException(ErrorCode.NO_MEAL_FOR_DATE);
+        }
+
+        RdiResponse rdi = rdiService.getRdi(userId);
+
+        NutrientAccumulator accumulator = new NutrientAccumulator();
+        for (MealLog log : mealLogs) {
+            for (MealItem item : log.getMealItems()) {
+                accumulator.add(item);
+            }
+        }
+
+        DailyAnalysis analysis = accumulator.toDailyAnalysis(userId, LocalDate.parse(date), rdi);
+        dailyAnalysisDao.upsertDailyAnalysis(analysis);
+
+        return DailyAnalysisResponse.of(analysis, rdi);
     }
 }

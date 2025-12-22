@@ -1,12 +1,16 @@
 package com.onlymeal.domain.meal.controller;
 
 import com.onlymeal.domain.meal.dto.*;
+import com.onlymeal.domain.meal.entity.DailyAnalysis;
 import com.onlymeal.domain.meal.service.MealService;
+import com.onlymeal.domain.rdi.dto.RdiResponse;
+import com.onlymeal.domain.rdi.service.RdiService;
 import com.onlymeal.global.common.ApiResponse;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +24,7 @@ import java.util.List;
 public class MealController {
 
     private final MealService mealService;
+    private final RdiService rdiService;
 
     @PostMapping
     public ApiResponse<Void> createMeal(
@@ -82,5 +87,28 @@ public class MealController {
                 userId, startDate.toString(), endDate.toString());
 
         return ApiResponse.success(response);
+    }
+
+    @GetMapping("/daily-analysis")
+    public ResponseEntity<?> getDailyAnalysis(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam LocalDate date) {
+
+        DailyAnalysis analysis = mealService.getDailyAnalysis(userId, date.toString());
+
+        if (analysis == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        RdiResponse rdi = rdiService.getRdi(userId);
+        return ResponseEntity.ok(ApiResponse.success(DailyAnalysisResponse.of(analysis, rdi)));
+    }
+
+    @PostMapping("/daily-analysis")
+    public ApiResponse<DailyAnalysisResponse> analyzeDailyMeal(
+            @AuthenticationPrincipal Long userId,
+            @RequestParam LocalDate date) {
+
+        return ApiResponse.success(mealService.analyzeDailyMeal(userId, date.toString()));
     }
 }

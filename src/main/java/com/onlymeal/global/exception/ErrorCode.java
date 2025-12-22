@@ -18,9 +18,11 @@ public enum ErrorCode {
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다"),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
+
     // Meal
     MEAL_NOT_FOUND(HttpStatus.NOT_FOUND, "식단 기록을 찾을 수 없습니다"),
     DUPLICATE_MEAL(HttpStatus.CONFLICT, "해당 날짜에 이미 등록된 식사가 있습니다"),
+    NO_MEAL_FOR_DATE(HttpStatus.BAD_REQUEST, "해당 날짜에 등록된 식단이 없습니다"),
 
     // Feed
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "피드를 찾을 수 없습니다"),
