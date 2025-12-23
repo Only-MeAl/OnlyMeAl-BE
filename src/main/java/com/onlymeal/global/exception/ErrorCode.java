@@ -42,6 +42,9 @@ public enum ErrorCode {
     // AI
     PROMPT_LOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "시스템 프롬프트를 읽을 수 없습니다"),
     IMAGE_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 처리에 실패했습니다"),
+    EMPTY_MESSAGE(HttpStatus.BAD_REQUEST, "메시지 내용이 비어있습니다"),
+    AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스 연동 중 오류가 발생했습니다"),
+    SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 세션입니다"),
 
     // Common
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),

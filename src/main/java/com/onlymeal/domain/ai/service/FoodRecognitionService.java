@@ -3,7 +3,6 @@ package com.onlymeal.domain.ai.service;
 import com.onlymeal.domain.ai.dto.FoodRecognitionResponse;
 import com.onlymeal.domain.food.dto.FoodDetailResponse;
 import com.onlymeal.domain.food.service.FoodService;
-import com.onlymeal.domain.user.service.UserService;
 import com.onlymeal.global.ai.GeminiApiClient;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
@@ -26,11 +25,10 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AiService {
+public class FoodRecognitionService {
 
     private final GeminiApiClient geminiClient;
     private final FoodService foodService;
-    private final UserService userService;
 
     @Value("${ai.prompts.food-system}")
     private Resource foodSystemPromptResource;
@@ -45,31 +43,26 @@ public class AiService {
                     StandardCharsets.UTF_8
             );
         } catch (IOException e) {
+            log.error("음식 인식 프롬프트 로드 실패", e);
             throw new CustomException(ErrorCode.PROMPT_LOAD_FAILED);
         }
     }
 
-    public FoodRecognitionResponse recognizeFoodFromImage(MultipartFile file) {
+    public FoodRecognitionResponse recognizeFood(MultipartFile file) {
         try {
             byte[] compressedBytes = ImageUtils.compressImage(file);
-
             String rawAnswer = geminiClient.generateContent(foodSystemPrompt, compressedBytes);
-
             List<String> foodNames = parseFoodNames(rawAnswer);
             List<FoodDetailResponse> matchedFoods = findFoodsInDatabase(foodNames);
-
             return new FoodRecognitionResponse(matchedFoods);
-
         } catch (IOException e) {
+            log.error("이미지 처리 실패", e);
             throw new CustomException(ErrorCode.IMAGE_PROCESSING_FAILED);
         }
     }
 
     private List<String> parseFoodNames(String rawText) {
-        if (rawText == null || rawText.isBlank()) {
-            return List.of();
-        }
-
+        if (rawText == null || rawText.isBlank()) return List.of();
         return Arrays.stream(rawText.replace("\n", ",").split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
@@ -78,13 +71,9 @@ public class AiService {
 
     private List<FoodDetailResponse> findFoodsInDatabase(List<String> foodNames) {
         List<FoodDetailResponse> matchedFoods = new ArrayList<>();
-        int searchLimit = 1;
-
         for (String name : foodNames) {
-            List<FoodDetailResponse> searchResults = foodService.searchFood(name, searchLimit);
-            if (!searchResults.isEmpty()) {
-                matchedFoods.add(searchResults.get(0));
-            }
+            List<FoodDetailResponse> searchResults = foodService.searchFood(name, 1);
+            if (!searchResults.isEmpty()) matchedFoods.add(searchResults.get(0));
         }
         return matchedFoods;
     }
