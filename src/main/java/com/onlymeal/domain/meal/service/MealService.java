@@ -37,7 +37,10 @@ public class MealService {
             throw new CustomException(ErrorCode.DUPLICATE_MEAL);
         }
 
-        String imageUrl = fileStorage.store(image, userId, request.getMealType());
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = fileStorage.store(image, userId, request.getMealType());
+        }
 
         validateFoodIds(request.getItems());
 
