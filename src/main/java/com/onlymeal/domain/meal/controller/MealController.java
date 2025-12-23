@@ -30,7 +30,7 @@ public class MealController {
     public ApiResponse<Void> createMeal(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestPart("data") MealCreateRequest request,
-            @RequestParam("image") MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image) {
 
         mealService.createMeal(userId, request, image);
         return ApiResponse.success(null);
