@@ -83,4 +83,13 @@ public class UserService {
 
         return CoachResponse.from(userDao.getUserById(userId));
     }
+
+    public void deleteMyInfo(Long userId) {
+        User user =  userDao.getUserById(userId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        userDao.deleteUser(userId);
+    }
 }

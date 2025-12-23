@@ -43,4 +43,10 @@ public class UserController {
         CoachResponse response = userService.updateCoach(userId, request);
         return ApiResponse.success(response);
     }
+
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteMyInfo(@AuthenticationPrincipal Long userId) {
+        userService.deleteMyInfo(userId);
+        return ApiResponse.success();
+    }
 }
