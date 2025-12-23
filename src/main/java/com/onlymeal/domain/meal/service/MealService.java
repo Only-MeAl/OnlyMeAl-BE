@@ -92,7 +92,9 @@ public class MealService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        fileStorage.delete(mealLog.getImageUrl());
+        if (mealLog.getImageUrl() != null) {
+            fileStorage.delete(mealLog.getImageUrl());
+        }
 
         mealDao.deleteMealLog(logId);
     }
