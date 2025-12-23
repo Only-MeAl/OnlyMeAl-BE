@@ -37,4 +37,9 @@
             coach_personality = #{coachPersonality}
         WHERE user_id = #{userId}
     </update>
+
+    <delete id="deleteUser">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+    </delete>
 </mapper>
