@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.onlymeal.domain.ai.dao.ChatDao">
+
+    <insert id="createSession" parameterType="com.onlymeal.domain.ai.entity.ChatSession">
+        INSERT INTO chat_sessions (session_id, user_id, title)
+        VALUES (#{sessionId}, #{userId}, #{title})
+    </insert>
+
+    <select id="getSession" resultType="com.onlymeal.domain.ai.entity.ChatSession">
+        SELECT session_id, user_id, title, created_at, updated_at
+        FROM chat_sessions
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <select id="getSessionsByUser" resultType="com.onlymeal.domain.ai.entity.ChatSession">
+        SELECT session_id, user_id, title, created_at, updated_at
+        FROM chat_sessions
+        WHERE user_id = #{userId}
+        ORDER BY updated_at DESC
+    </select>
+
+    <update id="updateSessionTitle">
+        UPDATE chat_sessions
+        SET title = #{title}
+        WHERE session_id = #{sessionId}
+    </update>
+
+    <delete id="deleteSession">
+        DELETE FROM chat_sessions
+        WHERE session_id = #{sessionId}
+    </delete>
+
+    <insert id="saveMessage" parameterType="com.onlymeal.domain.ai.entity.ChatMessageEntity">
+        INSERT INTO chat_messages (session_id, role, content)
+        VALUES (#{sessionId}, #{role}, #{content})
+    </insert>
+
+    <select id="getMessages" resultType="com.onlymeal.domain.ai.entity.ChatMessageEntity">
+        SELECT message_id, session_id, role, content, created_at
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+        ORDER BY created_at
+    </select>
+
+    <delete id="deleteMessages">
+        DELETE FROM chat_messages
+        WHERE session_id = #{sessionId}
+    </delete>
+
+</mapper>

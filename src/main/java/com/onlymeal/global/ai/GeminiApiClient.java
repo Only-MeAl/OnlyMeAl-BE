@@ -1,9 +1,11 @@
 package com.onlymeal.global.ai;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.onlymeal.global.exception.CustomException;
 import com.onlymeal.global.exception.ErrorCode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -12,6 +14,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -26,88 +29,153 @@ public class GeminiApiClient {
     @Value("${spring.ai.google.genai.base-url}")
     private String baseUrl;
 
-    /**
-     * [멀티모달] 텍스트 + 이미지 요청 (음식 인식용)
-     */
     public String generateContent(String textPrompt, byte[] imageBytes) {
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 
         GeminiRequest request = new GeminiRequest(
-                List.of(new Content(
+                List.of(new Content("user",
                         List.of(
-                                new TextPart(textPrompt),
-                                new InlineDataPart(new InlineData("image/jpeg", base64Image))
+                                new Part(textPrompt),
+                                new Part(new InlineData("image/jpeg", base64Image))
                         )
                 ))
         );
         return callApi(request);
     }
 
-    /**
-     * [텍스트] 텍스트 전용 요청 (챗봇용 - 추후 사용)
-     */
-    public String generateContent(String textPrompt) {
-        GeminiRequest request = new GeminiRequest(
-                List.of(new Content(
-                        List.of(new TextPart(textPrompt))
-                ))
-        );
-        return callApi(request);
+    public GeminiResponse generateChatWithToolsAndSystem(
+            List<Content> contents,
+            List<Tool> tools,
+            String systemPrompt) {
+
+        Content systemInstruction = new Content("user", List.of(new Part(systemPrompt)));
+        GeminiRequest request = new GeminiRequest(contents, tools, systemInstruction);
+        return callApiFullResponse(request);
     }
 
     private String callApi(GeminiRequest request) {
+        GeminiResponse response = callApiFullResponse(request);
+        if (response != null && response.getCandidates() != null && !response.getCandidates().isEmpty()) {
+            List<Part> parts = response.getCandidates().get(0).getContent().getParts();
+            if (parts != null && !parts.isEmpty()) {
+                return parts.get(0).getText();
+            }
+        }
+        throw new CustomException(ErrorCode.AI_SERVICE_ERROR);
+    }
+
+    private GeminiResponse callApiFullResponse(GeminiRequest request) {
         try {
             RestClient restClient = RestClient.builder().baseUrl(baseUrl).build();
 
-            GeminiResponse response = restClient.post()
+            return restClient.post()
                     .uri("/v1beta/models/" + modelName + ":generateContent?key=" + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(request)
                     .retrieve()
                     .body(GeminiResponse.class);
-
-            if (response != null && response.getCandidates() != null && !response.getCandidates().isEmpty()) {
-                return response.getCandidates().get(0).getContent().getParts().get(0).getText();
-            }
-            throw new CustomException(ErrorCode.INTERNAL_ERROR);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_ERROR);
+            throw new CustomException(ErrorCode.AI_SERVICE_ERROR);
         }
     }
 
-    @Getter static class GeminiRequest {
+    @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class GeminiRequest {
         private final List<Content> contents;
-        public GeminiRequest(List<Content> contents) { this.contents = contents; }
-    }
-    @Getter static class Content {
-        private final List<Object> parts;
-        public Content(List<Object> parts) { this.parts = parts; }
-    }
-    @Getter static class TextPart {
-        private final String text;
-        public TextPart(String text) { this.text = text; }
-    }
-    @Getter static class InlineDataPart {
-        @JsonProperty("inline_data")
-        private final InlineData inlineData;
-        public InlineDataPart(InlineData inlineData) { this.inlineData = inlineData; }
-    }
-    @Getter static class InlineData {
-        @JsonProperty("mime_type")
-        private final String mimeType;
-        private final String data;
-        public InlineData(String mimeType, String data) {
-            this.mimeType = mimeType;
-            this.data = data;
+        private final List<Tool> tools;
+        private final Content systemInstruction;
+
+        public GeminiRequest(List<Content> contents) {
+            this(contents, null, null);
+        }
+
+        public GeminiRequest(List<Content> contents, List<Tool> tools) {
+            this(contents, tools, null);
+        }
+
+        public GeminiRequest(List<Content> contents, List<Tool> tools, Content systemInstruction) {
+            this.contents = contents;
+            this.tools = tools;
+            this.systemInstruction = systemInstruction;
         }
     }
-    @Getter static class GeminiResponse {
+
+    @Getter
+    @AllArgsConstructor
+    public static class Tool {
+        private List<FunctionDeclaration> functionDeclarations;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class FunctionDeclaration {
+        private String name;
+        private String description;
+        private Map<String, Object> parameters; // JSON Schema
+    }
+
+    @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class Content {
+        private String role;
+        private List<Part> parts;
+
+        public Content() {}
+
+        public Content(String role, List<Part> parts) {
+            this.role = role;
+            this.parts = parts;
+        }
+    }
+
+    @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @NoArgsConstructor
+    public static class Part {
+        private String text;
+        private InlineData inlineData;
+        private FunctionCall functionCall;
+        private FunctionResponse functionResponse;
+
+        public Part(String text) { this.text = text; }
+        public Part(InlineData inlineData) { this.inlineData = inlineData; }
+        public Part(FunctionCall functionCall) { this.functionCall = functionCall; }
+        public Part(FunctionResponse functionResponse) { this.functionResponse = functionResponse; }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class InlineData {
+        private String mimeType;
+        private String data;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class FunctionCall {
+        private String name;
+        private Map<String, Object> args;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FunctionResponse {
+        private String name;
+        private Map<String, Object> response;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class GeminiResponse {
         private List<Candidate> candidates;
     }
-    @Getter static class Candidate {
-        private ContentResponse content;
-    }
-    @Getter static class ContentResponse {
-        private List<TextPart> parts;
+
+    @Getter
+    @NoArgsConstructor
+    public static class Candidate {
+        private Content content;
     }
 }
