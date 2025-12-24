@@ -23,6 +23,9 @@
         UPDATE users
         <set>
             <if test="request.nickname != null">nickname = #{request.nickname},</if>
+            <if test="request.nickname != null">nickname = #{request.nickname},</if>
+            <if test="request.gender != null">gender = #{request.gender},</if>
+            <if test="request.birthDate != null">birth_date = #{request.birthDate},</if>
             <if test="request.height != null">height = #{request.height},</if>
             <if test="request.weight != null">weight = #{request.weight},</if>
             <if test="request.activityLevel != null">activity_level = #{request.activityLevel},</if>

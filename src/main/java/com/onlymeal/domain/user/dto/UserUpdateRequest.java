@@ -10,6 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserUpdateRequest {
     private String nickname;
+    private String password;
+    private String gender;
+    private String birthDate;
 
     @Positive(message = "키는 양수여야 합니다")
     private Double height;
