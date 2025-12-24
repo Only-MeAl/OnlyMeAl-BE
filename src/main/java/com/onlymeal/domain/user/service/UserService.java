@@ -59,6 +59,11 @@ public class UserService {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            String encodedPassword = passwordEncoder.encode(request.getPassword());
+            request.setPassword(encodedPassword);
+        }
+
         userDao.updateUser(userId, request);
 
         User updatedUser = userDao.getUserById(userId);
